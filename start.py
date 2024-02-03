@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
-import argparse
-import contextlib
-import os, re, subprocess, sys
+import sys, os
+from tv.main import TV
+
+current_script_path = os.path.realpath(__file__)
+current_directory = os.path.dirname(current_script_path)
 
 def log(s):
     sys.stderr.write("start to run: ")
@@ -10,18 +12,9 @@ def log(s):
     sys.stderr.write("\n")
     sys.stderr.flush()
 
+def get_files(directory) -> list:
+    return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument("-v", "--verbose", action="store_true")
-    group.add_argument("-q", "--quiet", action="store_true")
-    parser.add_argument("-ey", "--entity", choices=["AU", "SG"], help="choice entity")
-    parser.add_argument("-ev", "--env", choices=["sit", "uat"], help="choice env")
-    args = parser.parse_args()
-
-    if args.quiet:
-        sys.exit()
-    elif args.entity and args.env:
-        log("entity is {}， env is {}".format(args.entity, args.env))
-    else:
-        log("\nTry './start -h' to get more. \n")
+    all_files = get_files(current_directory)
+    tv = TV(file_list=all_files)
+    tv.execute_batch()
